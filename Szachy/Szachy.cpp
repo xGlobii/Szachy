@@ -14,6 +14,8 @@ int main()
 	sf::RectangleShape tile(sf::Vector2f(tileSize, tileSize));
 	sf::RectangleShape piece(sf::Vector2f(tileSize, tileSize));
 
+	std::vector<sf::Texture> textures;
+
 	//Textures
 	sf::Texture texture1;
 	sf::Texture texture2;
