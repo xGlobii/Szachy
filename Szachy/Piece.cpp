@@ -148,7 +148,7 @@ void Pawn::draw(sf::RenderWindow& window, const float size, sf::Vector2f positio
 
 bool Pawn::possibleMove(sf::Vector2i piecePosition, sf::Vector2i boardPosition)
 {
-	if (abs(piecePosition.x - boardPosition.x) == 0)
+	if (piecePosition.x - boardPosition.x == 0)
 	{
 		if ((firstMove && abs(piecePosition.y - boardPosition.y) == 2) || (abs(piecePosition.y - boardPosition.y) == 1))
 		{
@@ -158,4 +158,6 @@ bool Pawn::possibleMove(sf::Vector2i piecePosition, sf::Vector2i boardPosition)
 		else
 			return false;
 	}
+	else
+		return false;
 }
