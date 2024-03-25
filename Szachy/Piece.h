@@ -31,12 +31,12 @@ protected:
 	std::string typeStr;
 
 private:
-	std::string getColor(const Color color)
+	std::string setColor(const Color color)
 	{
 		return color == Color::Black ? "Black" : "White";
 	}
 
-	std::string getPiece(const PieceType type)
+	std::string setPiece(const PieceType type)
 	{
 		switch (type)
 		{
@@ -61,12 +61,19 @@ private:
 		}
 	}
 
+
 public:
 	Piece(const int, const int);
 	virtual ~Piece();
 
-	virtual void move() const = 0;
+	virtual bool move(std::vector<std::vector<Piece*>>& board, sf::Vector2i piecePosition, sf::Vector2i boardPosition) = 0;
 	virtual void draw(sf::RenderWindow& window, const float size, sf::Vector2f position);
+	virtual bool possibleMove(sf::Vector2i piecePosition, sf::Vector2i boardPosition) = 0;
+
+	std::string getColor()
+	{
+		return color == Color::Black ? "Black" : "White";
+	}
 };
 
 class King : public Piece
@@ -75,8 +82,11 @@ public:
 	King(const int, const int);
 	~King();
 
-	void move() const override;
+	bool canCastle;
+
+	bool move(std::vector<std::vector<Piece*>>& board, sf::Vector2i piecePosition, sf::Vector2i boardPosition) override;
 	void draw(sf::RenderWindow& window, const float size, sf::Vector2f position);
+	bool possibleMove(sf::Vector2i piecePosition, sf::Vector2i boardPosition) override;
 };
 
 class Queen : public Piece
@@ -85,8 +95,9 @@ public:
 	Queen(const int, const int);
 	~Queen();
 
-	void move() const override;
+	bool move(std::vector<std::vector<Piece*>>& board, sf::Vector2i piecePosition, sf::Vector2i boardPosition) override;
 	void draw(sf::RenderWindow& window, const float size, sf::Vector2f position);
+	bool possibleMove(sf::Vector2i piecePosition, sf::Vector2i boardPosition) override;
 };
 
 class Rook : public Piece
@@ -95,8 +106,11 @@ public:
 	Rook(const int, const int);
 	~Rook();
 
-	void move() const override;
+	bool canCastle;
+
+	bool move(std::vector<std::vector<Piece*>>& board, sf::Vector2i piecePosition, sf::Vector2i boardPosition) override;
 	void draw(sf::RenderWindow& window, const float size, sf::Vector2f position);
+	bool possibleMove(sf::Vector2i piecePosition, sf::Vector2i boardPosition) override;
 };
 
 class Bishop : public Piece
@@ -105,8 +119,9 @@ public:
 	Bishop(const int, const int);
 	~Bishop();
 
-	void move() const override;
+	bool move(std::vector<std::vector<Piece*>>& board, sf::Vector2i piecePosition, sf::Vector2i boardPosition) override;
 	void draw(sf::RenderWindow& window, const float size, sf::Vector2f position);
+	bool possibleMove(sf::Vector2i piecePosition, sf::Vector2i boardPosition) override;
 };
 
 class Knight : public Piece
@@ -115,8 +130,9 @@ public:
 	Knight(const int, const int);
 	~Knight();
 
-	void move() const override;
+	bool move(std::vector<std::vector<Piece*>>& board, sf::Vector2i piecePosition, sf::Vector2i boardPosition) override;
 	void draw(sf::RenderWindow& window, const float size, sf::Vector2f position);
+	bool possibleMove(sf::Vector2i piecePosition, sf::Vector2i boardPosition) override;
 };
 
 class Pawn : public Piece
@@ -125,8 +141,11 @@ public:
 	Pawn(const int, const int);
 	~Pawn();
 
-	void move() const override;
+	bool firstMove;
+
+	bool move(std::vector<std::vector<Piece*>>& board, sf::Vector2i piecePosition, sf::Vector2i boardPosition) override;
 	void draw(sf::RenderWindow& window, const float size, sf::Vector2f position);
+	bool possibleMove(sf::Vector2i piecePosition, sf::Vector2i boardPosition) override;
 };
 
 #endif
