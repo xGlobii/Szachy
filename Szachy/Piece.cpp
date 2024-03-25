@@ -35,6 +35,8 @@ King::~King() {}
 
 bool King::move(std::vector<std::vector<Piece*>>& board, sf::Vector2i piecePosition, sf::Vector2i boardPosition)
 {
+	board[boardPosition.x][boardPosition.y] = board[piecePosition.x][piecePosition.y];
+	board[piecePosition.x][piecePosition.y] = nullptr;
 	return true;
 }
 
@@ -53,6 +55,8 @@ Queen::~Queen() {}
 
 bool Queen::move(std::vector<std::vector<Piece*>>& board, sf::Vector2i piecePosition, sf::Vector2i boardPosition)
 {
+	board[boardPosition.x][boardPosition.y] = board[piecePosition.x][piecePosition.y];
+	board[piecePosition.x][piecePosition.y] = nullptr;
 	return true;
 }
 
@@ -74,6 +78,8 @@ Rook::~Rook() {}
 
 bool Rook::move(std::vector<std::vector<Piece*>>& board, sf::Vector2i piecePosition, sf::Vector2i boardPosition)
 {
+	board[boardPosition.x][boardPosition.y] = board[piecePosition.x][piecePosition.y];
+	board[piecePosition.x][piecePosition.y] = nullptr;
 	return true;
 }
 
@@ -92,6 +98,8 @@ Bishop::~Bishop() {}
 
 bool Bishop::move(std::vector<std::vector<Piece*>>& board, sf::Vector2i piecePosition, sf::Vector2i boardPosition)
 {
+	board[boardPosition.x][boardPosition.y] = board[piecePosition.x][piecePosition.y];
+	board[piecePosition.x][piecePosition.y] = nullptr;
 	return true;
 }
 
@@ -110,6 +118,8 @@ Knight::~Knight() {}
 
 bool Knight::move(std::vector<std::vector<Piece*>>& board, sf::Vector2i piecePosition, sf::Vector2i boardPosition)
 {
+	board[boardPosition.x][boardPosition.y] = board[piecePosition.x][piecePosition.y];
+	board[piecePosition.x][piecePosition.y] = nullptr;
 	return true;
 }
 
