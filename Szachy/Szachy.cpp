@@ -1,6 +1,4 @@
-﻿//#include <iostream>
-//#include <vector>
-#include <SFML/Graphics.hpp>
+﻿#include <SFML/Graphics.hpp>
 
 #include "Chessboard.h"
 
@@ -47,7 +45,6 @@ int main()
 	window.setFramerateLimit(60);
 
 	float tileSize = 100.f;
-	int index;
 
 	while (window.isOpen())
 	{

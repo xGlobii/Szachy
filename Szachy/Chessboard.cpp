@@ -6,29 +6,29 @@ Chessboard::Chessboard()
 
 	for (int i = 0; i < board.size(); i++)
 	{
-		board[i][1] = new Pawn(-1, 1);
-		board[i][6] = new Pawn(1, 1);
+		board[i][1] = new Pawn(Color::Black, PieceType::Pawn);
+		board[i][6] = new Pawn(Color::White, PieceType::Pawn);
 	}
 
 	//Black
-	board[0][0] = new Rook(-1, 4);
-	board[1][0] = new Knight(-1, 2);
-	board[2][0] = new Bishop(-1, 3);
-	board[3][0] = new Queen(-1, 5);
-	board[4][0] = new King(-1, 6);
-	board[5][0] = new Bishop(-1, 3);
-	board[6][0] = new Knight(-1, 2);
-	board[7][0] = new Rook(-1, 4);
+	board[0][0] = new Rook(Color::Black, PieceType::Rook);
+	board[1][0] = new Knight(Color::Black, PieceType::Knight);
+	board[2][0] = new Bishop(Color::Black, PieceType::Bishop);
+	board[3][0] = new Queen(Color::Black, PieceType::Queen);
+	board[4][0] = new King(Color::Black, PieceType::King);
+	board[5][0] = new Bishop(Color::Black, PieceType::Bishop);
+	board[6][0] = new Knight(Color::Black, PieceType::Knight);
+	board[7][0] = new Rook(Color::Black, PieceType::Rook);
 
 	//White
-	board[0][7] = new Rook(1, 4);
-	board[1][7] = new Knight(1, 2);
-	board[2][7] = new Bishop(1, 3);
-	board[3][7] = new Queen(1, 5);
-	board[4][7] = new King(1, 6);
-	board[5][7] = new Bishop(1, 3);
-	board[6][7] = new Knight(1, 2);
-	board[7][7] = new Rook(1, 4);
+	board[0][7] = new Rook(Color::White, PieceType::Rook);
+	board[1][7] = new Knight(Color::White, PieceType::Knight);
+	board[2][7] = new Bishop(Color::White, PieceType::Bishop);
+	board[3][7] = new Queen(Color::White, PieceType::Queen);
+	board[4][7] = new King(Color::White, PieceType::King);
+	board[5][7] = new Bishop(Color::White, PieceType::Bishop);
+	board[6][7] = new Knight(Color::White, PieceType::Knight);
+	board[7][7] = new Rook(Color::White, PieceType::Rook);
 }
 
 Chessboard::~Chessboard()
@@ -49,7 +49,7 @@ void Chessboard::draw(sf::RenderWindow& window)
 		for (int j = 0; j < board.size(); j++)
 		{
 			if (board[i][j] != nullptr)
-				board[i][j]->draw(window, 100, sf::Vector2f(i * 100, j * 100));
+				board[i][j]->draw(window, 100, sf::Vector2f(i * tileSize, j * tileSize));
 		}
 	}
 }
@@ -62,12 +62,27 @@ void Chessboard::handleMouseClick(sf::RenderWindow& window)
 
 	if (board[col][row] != nullptr)
 	{
-		if (whiteTurn && board[col][row]->getColor() == "White")
-			selectedPiecePosition = sf::Vector2i(col, row);
-		else if (!whiteTurn && board[col][row]->getColor() == "Black")
-			selectedPiecePosition = sf::Vector2i(col, row);
+		if (selectedPiecePosition != sf::Vector2i(-1, -1))
+		{
+			if ((whiteTurn && board[col][row]->getColor() == Color::Black) || (!whiteTurn && board[col][row]->getColor() == Color::White))
+			{
+				if (board[selectedPiecePosition.x][selectedPiecePosition.y]->takes(selectedPiecePosition, sf::Vector2i(col, row), board))
+					whiteTurn = !whiteTurn;
+				selectedPiecePosition = sf::Vector2i(-1, -1);
+			}
+			else
+				selectedPiecePosition = sf::Vector2i(-1, -1);
+		}
+		else
+		{
+			if (whiteTurn && board[col][row]->getColor() == Color::White)				//Checking if white tries to move white piece
+				selectedPiecePosition = sf::Vector2i(col, row);
+			else if (!whiteTurn && board[col][row]->getColor() == Color::Black)			//Checking if black tries to move black piece
+				selectedPiecePosition = sf::Vector2i(col, row);
+
+		}
 	}
-	else
+	else if (board[col][row] == nullptr)
 	{
 		if (selectedPiecePosition != sf::Vector2i(-1, -1))
 		{
