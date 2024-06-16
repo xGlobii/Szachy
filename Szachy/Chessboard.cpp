@@ -259,14 +259,11 @@ void Chessboard::pieceTakes(sf::Vector2i to, sf::RenderWindow& window)
 void Chessboard::promotePawn(sf::Vector2i position, sf::RenderWindow& window)
 {
 	board[position.x][position.y] = new Queen(whiteTurn ? PieceColor::White : PieceColor::Black, PieceType::Queen);
-	std::cout << "A" << std::endl;
 	drawPromotionIcons(window, position);
 }
 
 void Chessboard::drawPromotionIcons(sf::RenderWindow& window, sf::Vector2i position)
 {
-	std::cout << "B" << std::endl;
-
 	sf::RectangleShape box(sf::Vector2f(100, 400));
 	//box.setPosition(position.x * 100 + 150, position.y * 100 + 150);
 	box.setPosition(sf::Vector2f(0, 0));
@@ -317,10 +314,7 @@ bool Chessboard::isKingInCheck(const PieceColor kingColor)
 			if (board[x][y] != nullptr && board[x][y]->getColor() != kingColor)				//Searching for 'enemy' pieces on board
 			{
 				if (board[x][y]->takes(sf::Vector2i(x, y), kingPosition, board))		//Checking if king is in direct attack
-				{
-					std::cout << "King is in check" << std::endl;
 					return true;
-				}
 			}
 		}
 	}
@@ -748,11 +742,11 @@ void Chessboard::drawLastMoves(sf::RenderWindow& window)
 
 	if (moveHistory.size() % 2 == 0)
 	{
-		startIdx = (moveHistory.size() > 30) ? moveHistory.size() % 30 : 0;
+		startIdx = (moveHistory.size() > 30) ? moveHistory.size() - 30 : 0;
 	}
 	else
 	{
-		startIdx = (moveHistory.size() > 30) ? moveHistory.size() % 30 + 1 : 0;
+		startIdx = (moveHistory.size() > 30) ? moveHistory.size() - 30 + 1 : 0;
 	}
 
 	for (int i = startIdx, pos = 0; i < moveHistory.size(); i += 2, pos += 2)
