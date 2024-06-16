@@ -1,0 +1,15 @@
+Niedziela:
+- bicie w przelocie
+- promocja pionka (dodać mechanikę wyboru na co chcemy promować)
+
+Poniedziałek:
+- historia rozgrywek (to dopiero po zrobieniu obsługi końca gry)
+- obsługa końca gry (mat, pat, zegar)
+- prezentacja
+
+Opcjonalne:
+- dźwięki
+- poprzenosić część funkcjonalności z Chessboard do Game
+- ostatnie szlify
+
+- użyć gdzieś asynca (zrobione, ale można ewentualnie coś jeszcze dodać)

@@ -1,6 +1,6 @@
 #include "Rook.h"
 
-Rook::Rook(const Color _color, const PieceType _pType) : Piece(_color, _pType), canCastle(true)
+Rook::Rook(const PieceColor _color, const PieceType _pType) : Piece(_color, _pType, true)
 {
 	value = 5;
 }
@@ -34,17 +34,4 @@ bool Rook::possibleMove(std::vector<std::vector<Piece*>>& board, sf::Vector2i pi
 		}
 	}
 	return true;
-}
-
-bool Rook::takes(sf::Vector2i piecePosition, sf::Vector2i boardPosition, std::vector<std::vector<Piece*>>& board)
-{
-	if (possibleMove(board, piecePosition, boardPosition))
-	{
-		board[boardPosition.x][boardPosition.y] = nullptr;
-		board[boardPosition.x][boardPosition.y] = board[piecePosition.x][piecePosition.y];
-		board[piecePosition.x][piecePosition.y] = nullptr;
-		return true;
-	}
-	else
-		return false;
 }

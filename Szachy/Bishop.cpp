@@ -1,6 +1,6 @@
 #include "Bishop.h"
 
-Bishop::Bishop(const Color _color, const PieceType _pType) : Piece(_color, _pType)
+Bishop::Bishop(const PieceColor _color, const PieceType _pType) : Piece(_color, _pType, false)
 {
 	value = 3;
 }
@@ -31,15 +31,15 @@ bool Bishop::possibleMove(std::vector<std::vector<Piece*>>& board, sf::Vector2i 
 }
 
 
-bool Bishop::takes(sf::Vector2i piecePosition, sf::Vector2i boardPosition, std::vector<std::vector<Piece*>>& board)
-{
-	if (possibleMove(board, piecePosition, boardPosition))
-	{
-		board[boardPosition.x][boardPosition.y] = nullptr;
-		board[boardPosition.x][boardPosition.y] = board[piecePosition.x][piecePosition.y];
-		board[piecePosition.x][piecePosition.y] = nullptr;
-		return true;
-	}
-	else
-		return false;
-}
+//bool Bishop::takes(sf::Vector2i piecePosition, sf::Vector2i boardPosition, std::vector<std::vector<Piece*>>& board)
+//{
+//	if (possibleMove(board, piecePosition, boardPosition))
+//	{
+//		board[boardPosition.x][boardPosition.y] = nullptr;
+//		board[boardPosition.x][boardPosition.y] = board[piecePosition.x][piecePosition.y];
+//		board[piecePosition.x][piecePosition.y] = nullptr;
+//		return true;
+//	}
+//	else
+//		return false;
+//}

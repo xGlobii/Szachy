@@ -1,16 +1,16 @@
 #include "Piece.h"
 
-std::string getStringColor(const Color color)
+std::string Piece::getStringColor(const PieceColor color)
 {
-	return (color == Color::Black ? "Black" : "White");
+	return (color == PieceColor::Black ? "Black" : "White");
 }
 
-Piece::Piece(Color color, PieceType pType) : color(color), pType(pType)
+Piece::Piece(PieceColor color, PieceType pType, bool specialMove) : color(color), pType(pType), specialMove(specialMove)
 {
 	std::string colorStr = (getStringColor(color));
 	std::string typeStr = (getStringType(pType));
 
-	texture.loadFromFile("..\\images\\" + colorStr + typeStr + ".png");
+	texture.loadFromFile("..\\rsc\\images\\" + colorStr + typeStr + ".png");
 }
 
 Piece::~Piece() {}
@@ -32,7 +32,7 @@ bool Piece::move(std::vector<std::vector<Piece*>>& board, sf::Vector2i piecePosi
 {
 	if (possibleMove(board, piecePosition, boardPosition))
 	{
-		board[boardPosition.x][boardPosition.y] = board[piecePosition.x][piecePosition.y];
+		board[boardPosition.x][boardPosition.y] = std::move(board[piecePosition.x][piecePosition.y]);
 		board[piecePosition.x][piecePosition.y] = nullptr;
 		return true;
 	}
@@ -40,7 +40,7 @@ bool Piece::move(std::vector<std::vector<Piece*>>& board, sf::Vector2i piecePosi
 		return false;
 }
 
-std::string getStringType(const PieceType pType)
+std::string Piece::getStringType(const PieceType pType)
 {
 	switch (pType)
 	{
@@ -63,4 +63,37 @@ std::string getStringType(const PieceType pType)
 		return "Pawn";
 		break;
 	}
+}
+
+bool Piece::takes(sf::Vector2i piecePosition, sf::Vector2i boardPosition, std::vector<std::vector<Piece*>>& board)
+{
+	if (possibleMove(board, piecePosition, boardPosition))
+		return true;
+	else
+		return false;
+}
+
+int Piece::getValue()
+{
+	return value;
+}
+
+PieceColor Piece::getColor()
+{
+	return color;
+}
+
+PieceType Piece::getPiece()
+{
+	return pType;
+}
+
+bool Piece::getSpecialMoveStatus()
+{
+	return specialMove;
+}
+
+void Piece::setSpecialMove(bool _specialMove)
+{
+	specialMove = _specialMove;
 }

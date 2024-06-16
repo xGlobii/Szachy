@@ -1,0 +1,33 @@
+Matowanie:
+- Zrobiæ obs³uge matowania
+
+Roszada:
+- Zrobiæ, ¿eby da³o siê sprawdzaæ i wie¿ê i króla czy mog¹ roszowaæ
+
+Okno z gr¹:
+- Dodaæ mo¿liwoœæ przeci¹gania figur na szachownicy
+- Zrobiæ listê ostatnich ruchów
+- Menu do wczytywania i zapisywania partii szachowych
+- Historia ostatnich gier
+- Mozliwoœæ wprowadzenia nicków (u¿ycie regexa)
+
+Szachownica:
+- Bicie w przelocie
+- Promocja pionka
+- Matowanie, patowanie
+
+Patowanie:
+- Obs³uga patowania (50 ruchów bez zbijania, powtózenie 3-krotnie tej samej pozycji, niewystarczaj¹cy materia³, król nie jest matowany i nie ma mo¿liwoœci ruchu (jest ostatni¹ figur¹))
+
+TODO:
+- roszada
+
+- u¿yæ asynca do aktualizacji stanu zegara (i ewentualnie punktów)
+- matowanie
+
+- obs³uga koñca gry
+- nicki
+- historia rozgrywek
+
+- ostatnie szlify (prawdopodobnie)
+- prezentacja

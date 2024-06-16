@@ -4,42 +4,42 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
 
-enum class Color { Black, White };
+
+
+enum class PieceColor { Black, White };
 
 enum class PieceType { King, Queen, Rook, Bishop, Knight, Pawn };
 
 class Piece
 {
 protected:
-	Color color;
+	PieceColor color;
 	PieceType pType;
 	sf::Vector2f position;
 	sf::Texture texture;
 	int value;
+	bool specialMove;
 
 private:
 	std::string getStringType(const PieceType pType);
-	std::string getStringColor(const Color color);
+	std::string getStringColor(const PieceColor color);
 
 public:
-	Piece(const Color, const PieceType);
+	Piece(const PieceColor, const PieceType, const bool specialMove);
 	virtual ~Piece();
 
 
 	bool move(std::vector<std::vector<Piece*>>& board, sf::Vector2i piecePosition, sf::Vector2i boardPosition);
 	void draw(sf::RenderWindow& window, const float size, sf::Vector2f position);
 	virtual bool possibleMove(std::vector<std::vector<Piece*>>& board, sf::Vector2i piecePosition, sf::Vector2i boardPosition) = 0;
-	virtual bool takes(sf::Vector2i piecePosition, sf::Vector2i boardPosition, std::vector<std::vector<Piece*>>& board) = 0;
+	virtual bool takes(sf::Vector2i piecePosition, sf::Vector2i boardPosition, std::vector<std::vector<Piece*>>& board);
+	int getValue();
 
-	Color getColor()
-	{
-		return color;
-	}
+	PieceColor getColor();
+	PieceType getPiece();
 
-	PieceType getPiece()
-	{
-		return pType;
-	}
+	bool getSpecialMoveStatus();
+	void setSpecialMove(bool specialMove);
 };
 
 #endif
