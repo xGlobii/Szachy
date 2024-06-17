@@ -134,3 +134,13 @@ bool InputBox::getCorrectName()
 {
 	return correctName;
 }
+
+std::string InputBox::getName()
+{
+	return text.getString();
+}
+
+void InputBox::setName(std::string name)
+{
+	text.setString(name);
+}

@@ -17,15 +17,13 @@ Piece::~Piece() {}
 
 void Piece::draw(sf::RenderWindow& window, const float size, sf::Vector2f position)
 {
-	sf::Sprite piece;
-
 	float scaleX = size / texture.getSize().x;
 	float scaleY = size / texture.getSize().y;
 
-	piece.setScale(0.1, 0.1);
-	piece.setTexture(texture);
-	piece.setPosition(position);
-	window.draw(piece);
+	sprite.setScale(0.1, 0.1);
+	sprite.setTexture(texture);
+	sprite.setPosition(position);
+	window.draw(sprite);
 }
 
 bool Piece::move(std::vector<std::vector<Piece*>>& board, sf::Vector2i piecePosition, sf::Vector2i boardPosition)
@@ -96,4 +94,9 @@ bool Piece::getSpecialMoveStatus()
 void Piece::setSpecialMove(bool _specialMove)
 {
 	specialMove = _specialMove;
+}
+
+sf::Sprite Piece::getSprite() 
+{
+	return sprite;
 }

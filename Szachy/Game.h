@@ -2,7 +2,8 @@
 #define GAME_H
 
 #include <SFML/Graphics.hpp>
-#include <future>
+#include <thread>
+#include <ctime>
 
 #include "Chessboard.h"
 #include "Button.h"
@@ -21,8 +22,22 @@ class Game
 	bool loaded;
 	bool stop = false;
 
-	int whiteTimer;
-	int blackTimer;
+	bool lock;
+	bool saved;
+
+	std::atomic<bool> whitePauseFlag;
+	std::atomic<bool> blackPauseFlag;
+	std::atomic<bool> stopFlag;
+
+	int whiteClockValue;
+	int blackClockValue;
+
+
+	Timer blackTimer;
+	Timer whiteTimer;
+
+	std::thread whiteClockThread;
+	std::thread blackClockThread;
 
 	Chessboard board;
 	SaveLoadManager slManager;
@@ -40,6 +55,8 @@ class Game
 
 	InputBox input1;
 	InputBox input2;
+
+	std::vector<std::string> gameHistory;
 
 public:
 	Game();
@@ -60,6 +77,13 @@ public:
 	void save();
 	void drawTimer(sf::Vector2f position, sf::RenderWindow& window, const PieceColor pc);
 	void checkIfEnd();
+
+	void startTimers();
+	void stopTimers();
+	void setTimers(sf::Vector2f position, sf::RenderWindow& window, const PieceColor pc);
+	void updateTurn();
+
+	void drawMatchHistory();
 };
 
 #endif

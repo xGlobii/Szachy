@@ -1,13 +1,8 @@
 #include "Chessboard.h"
 
-Chessboard::Chessboard() : whiteTimer(600), blackTimer(600)
+Chessboard::Chessboard() : whiteTurn(true), stopTimers(false), startTimer(true)
 {
 	board.resize(8, std::vector<Piece*>(8, nullptr));
-
-	whitePauseFlag = false;
-	blackPauseFlag = true;
-	stopFlag = false;
-	whiteTurn = true;
 
 	isCastle = false;
 	isCheck = false;
@@ -20,8 +15,6 @@ Chessboard::Chessboard() : whiteTimer(600), blackTimer(600)
 	blackPoints = 0;
 
 	offset = sf::Vector2f(150, 150);
-
-	startTimer = true;
 }
 
 Chessboard::~Chessboard()
@@ -101,6 +94,11 @@ void Chessboard::draw(sf::RenderWindow& window)
 void Chessboard::handleMouseClick(sf::RenderWindow& window)
 {
 	sf::Vector2i mousePosition = sf::Mouse::getPosition(window);
+
+	if (promoting) {
+		handlePromotionClick(mousePosition);
+		return;
+	}
 	if (mousePosition.x >= (0 + offset.x) && mousePosition.x <= (800 + offset.x) && mousePosition.y >= (0 + offset.y) && mousePosition.y <= (800 + offset.y))		//Check if player clicked on chessboard
 	{
 		sf::Vector2i boardPosition((mousePosition.x - offset.x) / 100, (mousePosition.y - offset.y) / 100);		//Getting position on board
@@ -121,10 +119,7 @@ void Chessboard::handleMouseClick(sf::RenderWindow& window)
 		else if (board[boardPosition.x][boardPosition.y] != nullptr)
 		{
 			if (startTimer)
-			{
 				startTimer = false;
-				startTimers();
-			}
 
 			if ((whiteTurn && board[boardPosition.x][boardPosition.y]->getColor() == PieceColor::White) ||
 				(!whiteTurn && board[boardPosition.x][boardPosition.y]->getColor() == PieceColor::Black))
@@ -157,27 +152,27 @@ void Chessboard::pieceMoves(sf::Vector2i to, sf::RenderWindow& window)
 
 			if (!isKingInCheck(whiteTurn ? PieceColor::White : PieceColor::Black))
 			{
-				if (whiteTurn)
-				{
-					whitePauseFlag = true;
-					blackPauseFlag = false;
-				}
-				else
-				{
-					whitePauseFlag = false;
-					blackPauseFlag = true;
-				}
 				movesWithoutTake++;
 
-				if (board[to.x][to.y]->getPiece() == PieceType::Pawn && (to.y == 0 || to.y == 7))
+				if (board[to.x][to.y]->getPiece() == PieceType::Pawn && (to.y == 0 || to.y == 7)) {
+					promoting = true;
+					promotionPosition = to;
+					return;
+				}
+
+				updatePositionHistory();
+				if (isDraw(whiteTurn ? PieceColor::Black : PieceColor::White))
 				{
-					promotePawn(to, window);
+					std::cout << "TIE" << std::endl;
+					stopTimers = true;
 				}
 
 				if (isCheckmate(whiteTurn ? PieceColor::Black : PieceColor::White, to))
 				{
 					checkmate = true;
-					stopTimers();
+					stopTimers = true;
+					std::string col = whiteTurn == true ? "White wins" : "Black wins";
+					endGameType = "Checkmate\n" + col;
 				}
 
 				if (!checkmate)
@@ -216,24 +211,25 @@ void Chessboard::pieceTakes(sf::Vector2i to, sf::RenderWindow& window)
 		if (!isKingInCheck(whiteTurn ? PieceColor::White : PieceColor::Black))
 		{
 			if (whiteTurn)
-			{
 				whitePoints += points;
-				whitePauseFlag = true;
-				blackPauseFlag = false;
-			}
 			else
-			{
 				blackPoints += points;
-				whitePauseFlag = false;
-				blackPauseFlag = true;
-			}
 
 			takes = true;
 
 			if (isCheckmate(whiteTurn ? PieceColor::Black : PieceColor::White, to))
 			{
 				checkmate = true;
-				stopTimers();
+				stopTimers = true;
+				std::string col = whiteTurn == true ? "White wins" : "Black wins";
+				endGameType = "Checkmate\n" + col;
+			}
+
+			updatePositionHistory();
+			if (isDraw(whiteTurn ? PieceColor::Black : PieceColor::White))
+			{
+				std::cout << "TIE" << std::endl;
+				stopTimers = true;
 			}
 
 			if (!checkmate)
@@ -254,22 +250,6 @@ void Chessboard::pieceTakes(sf::Vector2i to, sf::RenderWindow& window)
 		}
 	}
 	selectedPiecePosition = sf::Vector2i(-1, -1);
-}
-
-void Chessboard::promotePawn(sf::Vector2i position, sf::RenderWindow& window)
-{
-	board[position.x][position.y] = new Queen(whiteTurn ? PieceColor::White : PieceColor::Black, PieceType::Queen);
-	drawPromotionIcons(window, position);
-}
-
-void Chessboard::drawPromotionIcons(sf::RenderWindow& window, sf::Vector2i position)
-{
-	sf::RectangleShape box(sf::Vector2f(100, 400));
-	//box.setPosition(position.x * 100 + 150, position.y * 100 + 150);
-	box.setPosition(sf::Vector2f(0, 0));
-	//box.setSize(sf::Vector2f(100, 400));
-	box.setFillColor(sf::Color::Red);
-	window.draw(box);
 }
 
 int Chessboard::getPlayersPoints(PieceColor pc)
@@ -320,57 +300,6 @@ bool Chessboard::isKingInCheck(const PieceColor kingColor)
 	}
 
 	return false;
-}
-
-void Chessboard::setTimers(sf::Vector2f position, sf::RenderWindow& window, const PieceColor pc)
-{
-	sf::RectangleShape timePlace;
-	sf::Text timeText;
-	sf::Font font;
-
-	timePlace.setSize(sf::Vector2f(100, 50));
-	timePlace.setFillColor(sf::Color::White);
-	timePlace.setPosition(sf::Vector2f(position));
-
-	font.loadFromFile("..\\rsc\\Roboto-Regular.ttf");
-
-	timeText.setFont(font);
-	timeText.setCharacterSize(24);
-	timeText.setFillColor(sf::Color::Black);
-	if (pc == PieceColor::White)
-		timeText.setString(std::to_string(whiteTimer.getActualTime() / 60) + ":" + std::to_string(whiteTimer.getActualTime() % 60));
-	else
-		timeText.setString(std::to_string(blackTimer.getActualTime() / 60) + ":" + std::to_string(blackTimer.getActualTime() % 60));
-
-	sf::FloatRect textRect = timeText.getLocalBounds();
-	timeText.setOrigin(textRect.left + textRect.width / 2.0f, textRect.top + textRect.height / 2.0f);
-	timeText.setPosition(timePlace.getPosition().x + timePlace.getSize().x / 2.0f, timePlace.getPosition().y + timePlace.getSize().y / 2.0f);
-
-	window.draw(timePlace);
-	window.draw(timeText);
-}
-
-void Chessboard::startTimers()
-{
-	if (whiteTurn)
-	{
-		whitePauseFlag = false;
-		blackPauseFlag = true;
-	}
-	else
-	{
-		whitePauseFlag = true;
-		blackPauseFlag = false;
-	}
-	whiteClockThread = std::thread(&Timer::startTimer, &whiteTimer, std::ref(stopFlag), std::ref(whitePauseFlag));
-	blackClockThread = std::thread(&Timer::startTimer, &blackTimer, std::ref(stopFlag), std::ref(blackPauseFlag));
-}
-
-void Chessboard::stopTimers()
-{
-	stopFlag = true;
-	whiteClockThread.join();
-	blackClockThread.join();
 }
 
 void Chessboard::drawPointsPlace(sf::RenderWindow& window, const int points, sf::Vector2f position)
@@ -448,26 +377,6 @@ void Chessboard::setTurn(bool whiteTurn)
 	this->whiteTurn = whiteTurn;
 }
 
-int Chessboard::getWhiteTimerValue()
-{
-	return whiteTimer.getActualTime();
-}
-
-int Chessboard::getBlackTimerValue()
-{
-	return blackTimer.getActualTime();
-}
-
-void Chessboard::setWhiteTimerValue(const int time)
-{
-	whiteTimer.setTime(time);
-}
-
-void Chessboard::setBlackTimerValue(const int time)
-{
-	blackTimer.setTime(time);
-}
-
 bool Chessboard::getTimerStatus()
 {
 	return startTimer;
@@ -520,16 +429,6 @@ bool Chessboard::canCastle(sf::Vector2i boardPosition)
 	else if (boardPosition.x == 6)
 		board[boardPosition.x - 1][selectedPiecePosition.y]->setSpecialMove(false);
 
-	if (whiteTurn)
-	{
-		whitePauseFlag = true;
-		blackPauseFlag = false;
-	}
-	else
-	{
-		whitePauseFlag = false;
-		blackPauseFlag = true;
-	}
 	whiteTurn = !whiteTurn;
 
 	return true;
@@ -589,26 +488,12 @@ std::string Chessboard::pieceTypeToSymbol(PieceType pt)
 {
 	switch (pt)
 	{
-	case PieceType::King:
-		return "K";
-		break;
-	case PieceType::Queen:
-		return "Q";
-		break;
-	case PieceType::Rook:
-		return "R";
-		break;
-	case PieceType::Bishop:
-		return "B";
-		break;
-	case PieceType::Knight:
-		return "N";
-		break;
-	case PieceType::Pawn:
-		return "";
-		break;
-	default:
-		break;
+	case PieceType::King: return "K"; break;
+	case PieceType::Queen: return "Q"; break;
+	case PieceType::Rook: return "R"; break;
+	case PieceType::Bishop: return "B"; break;
+	case PieceType::Knight: return "N"; break;
+	case PieceType::Pawn: return ""; break;
 	}
 }
 
@@ -683,7 +568,7 @@ bool Chessboard::checkIfThereMultipleChecks(sf::Vector2i kingPosition, PieceColo
 				attackers.push_back(sf::Vector2i(x, y));
 		}
 	}
-	
+
 	if (attackers.size() > 1)
 		return true;
 	else
@@ -763,4 +648,296 @@ void Chessboard::drawLastMoves(sf::RenderWindow& window)
 			window.draw(text);
 		}
 	}
+}
+
+bool Chessboard::getGameStatus()
+{
+	return stopTimers;
+}
+
+bool Chessboard::isDraw(PieceColor pc)
+{
+	if (isKingInCheck(pc))
+		return false;
+	if (movesWithoutTake >= 100)
+	{
+		endGameType = "Draw\n50-moves rule";
+		return true;
+	}
+
+	updatePositionHistory();
+	if (positionHistory[generatePositionKey()] >= 6) {
+		endGameType = "Draw\nThreefold repetition";
+		return true;
+	}
+
+	sf::Vector2i kingPosition = findKing(pc);
+
+	int whiteKnights = 0, whiteBishops = 0, whiteOthers = 0;
+	int blackKnights = 0, blackBishops = 0, blackOthers = 0;
+
+	for (int y = 0; y < 8; y++)
+	{
+		for (int x = 0; x < 8; x++)
+		{
+			if (board[x][y] != nullptr && board[x][y]->getPiece() != PieceType::King)
+			{
+				PieceType type = board[x][y]->getPiece();
+				PieceColor color = board[x][y]->getColor();
+
+				if (color == PieceColor::White)
+				{
+					if (type == PieceType::Knight)
+						whiteKnights++;
+					else if (type == PieceType::Bishop)
+						whiteBishops++;
+					else
+						whiteOthers++;
+				}
+				else
+				{
+					if (type == PieceType::Knight)
+						blackKnights++;
+					else if (type == PieceType::Bishop)
+						blackBishops++;
+					else
+						blackOthers++;
+				}
+			}
+		}
+	}
+
+	if (whiteOthers == 0 && blackOthers == 0)
+	{
+		if (whiteBishops == 0 && blackBishops == 0)
+		{
+			if (whiteKnights <= 1 && blackKnights <= 1)
+			{
+				endGameType = "Draw\nInsufficient material";
+				return true;
+			}
+		}
+		else if (whiteBishops == 1 && blackBishops == 0 && whiteKnights == 0 && blackKnights == 0)
+		{
+			endGameType = "Draw\nInsufficient material";
+			return true;
+		}
+		else if (whiteBishops == 0 && blackBishops == 1 && whiteKnights == 0 && blackKnights == 0)
+		{
+			endGameType = "Draw\nInsufficient material";
+			return true;
+		}
+	}
+
+	for (int y = 0; y < 8; y++)
+	{
+		for (int x = 0; x < 8; x++)
+		{
+			if (board[x][y] != nullptr && board[x][y]->getPiece() == PieceType::Pawn && board[x][y]->getColor() == pc)
+			{
+				if (board[x][y]->getSpecialMoveStatus())
+				{
+					if (board[x][y]->possibleMove(board, sf::Vector2i(x, y), sf::Vector2i(x, y + (pc == PieceColor::White ? 2 : -2))))
+					{
+						return false;
+					}
+				}
+				else if (board[x][y]->possibleMove(board, sf::Vector2i(x, y), sf::Vector2i(x, y + (pc == PieceColor::White ? 1 : -1))))
+				{
+					return false;
+				}
+				if (x - 1 > 0 && x + 1 < 7)
+				{
+					if (board[x][y]->takes(sf::Vector2i(x, y), sf::Vector2i(x - 1, y + (pc == PieceColor::White ? 1 : -1)), board))
+					{
+						return false;
+					}
+					if (board[x][y]->takes(sf::Vector2i(x, y), sf::Vector2i(x + 1, y + (pc == PieceColor::White ? 1 : -1)), board))
+					{
+						return false;
+					}
+				}
+			}
+			else if (board[x][y] != nullptr && board[x][y]->getPiece() != PieceType::Pawn && board[x][y]->getPiece() != PieceType::King && board[x][y]->getColor() == pc)
+			{
+				return false;
+			}
+		}
+	}
+
+	for (int dx = -1; dx <= 1; ++dx)
+	{
+		for (int dy = -1; dy <= 1; ++dy)
+		{
+			if (dx == 0 && dy == 0)
+				continue;
+
+			int newX = kingPosition.x + dx;
+			int newY = kingPosition.y + dy;
+
+			if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8)
+			{
+				if (board[newX][newY] == nullptr ||
+					(board[newX][newY]->getColor() != pc && board[newX][newY]->takes(sf::Vector2i(newX, newY), kingPosition, board)))
+				{
+					Piece* tempPiece = board[newX][newY];
+					bool tempSpecial = board[kingPosition.x][kingPosition.y]->getSpecialMoveStatus();
+
+					board[newX][newY] = board[kingPosition.x][kingPosition.y];
+					board[kingPosition.x][kingPosition.y] = nullptr;
+
+					if (!isKingInCheck(pc))
+					{
+						board[kingPosition.x][kingPosition.y] = std::move(board[newX][newY]);
+						board[newX][newY] = tempPiece;
+						board[kingPosition.x][kingPosition.y]->setSpecialMove(tempSpecial);
+						return false;
+					}
+
+					board[kingPosition.x][kingPosition.y] = std::move(board[newX][newY]);
+					board[newX][newY] = tempPiece;
+					board[kingPosition.x][kingPosition.y]->setSpecialMove(tempSpecial);
+				}
+			}
+
+		}
+	}
+
+	endGameType = "Draw\nStalemate";
+	return true;
+}
+
+std::string Chessboard::getEndGameType()
+{
+	return endGameType;
+}
+
+void Chessboard::setGameStatus(bool status)
+{
+	stopTimers = status;
+}
+
+std::vector<std::string> Chessboard::getMoves()
+{
+	return moveHistory;
+}
+
+void Chessboard::setMoves(std::vector<std::string> moves)
+{
+	moveHistory = moves;
+}
+
+std::vector<std::string> Chessboard::getMovesHistory() {
+	return movesHistory;
+}
+
+void Chessboard::updatePositionHistory() {
+	std::string key = generatePositionKey();
+	positionHistory[key]++;
+}
+
+std::string Chessboard::generatePositionKey() {
+	std::stringstream ss;
+	for (int y = 0; y < 8; ++y) {
+		for (int x = 0; x < 8; ++x) {
+			if (board[x][y] == nullptr) {
+				ss << ".";
+			}
+			else {
+				char pieceChar;
+				PieceType type = board[x][y]->getPiece();
+				PieceColor color = board[x][y]->getColor();
+
+				switch (type) {
+				case PieceType::King:   pieceChar = 'K'; break;
+				case PieceType::Queen:  pieceChar = 'Q'; break;
+				case PieceType::Rook:   pieceChar = 'R'; break;
+				case PieceType::Bishop: pieceChar = 'B'; break;
+				case PieceType::Knight: pieceChar = 'N'; break;
+				case PieceType::Pawn:   pieceChar = 'P'; break;
+				}
+
+				ss << (color == PieceColor::White ? pieceChar : std::tolower(pieceChar));
+			}
+		}
+		ss << "/";
+	}
+	ss << (whiteTurn ? "w" : "b"); // Dodaj informacjê o turze
+	return ss.str();
+}
+
+
+
+void Chessboard::promotePawn(sf::Vector2i position, sf::RenderWindow& window) {
+	promotionPosition = position;
+	promoting = true;
+	//drawPromotionIcons(window, position);
+}
+
+void Chessboard::drawPromotionIcons(sf::RenderWindow& window, sf::Vector2i position) {
+	sf::RectangleShape box(sf::Vector2f(100, 400));
+	int offs = whiteTurn ? 0 : -300;
+	box.setPosition(position.x * 100 + offset.x, position.y * 100 + offset.y + offs);
+	box.setFillColor(sf::Color(100, 100, 100, 200));
+	window.draw(box);
+
+	std::vector<sf::Texture> textures(4);
+	if (whiteTurn)
+	{
+		textures[0].loadFromFile("..\\rsc\\images\\WhiteQueen.png");
+		textures[1].loadFromFile("..\\rsc\\images\\WhiteRook.png");
+		textures[2].loadFromFile("..\\rsc\\images\\WhiteBishop.png");
+		textures[3].loadFromFile("..\\rsc\\images\\WhiteKnight.png");
+	}
+	else
+	{
+		textures[0].loadFromFile("..\\rsc\\images\\BlackQueen.png");
+		textures[1].loadFromFile("..\\rsc\\images\\BlackRook.png");
+		textures[2].loadFromFile("..\\rsc\\images\\BlackBishop.png");
+		textures[3].loadFromFile("..\\rsc\\images\\BlackKnight.png");
+	}
+
+	std::vector<sf::Sprite> icons(4);
+	for (int i = 0; i < 4; i++) {
+		icons[i].setScale(0.1, 0.1);
+		icons[i].setTexture(textures[i]);
+		icons[i].setPosition(position.x * 100 + offset.x, position.y * 100 + offset.y + i * 100 + offs);
+		window.draw(icons[i]);
+	}
+}
+
+void Chessboard::handlePromotionClick(sf::Vector2i mousePosition) {
+	int offs = whiteTurn ? 0 : -300;
+	int x = promotionPosition.x * 100 + offset.x;
+	int y = promotionPosition.y * 100 + offset.y + offs;
+	int index = (mousePosition.y - y) / 100;
+	if (mousePosition.x >= x && mousePosition.x <= x + 100 && index >= 0 && index < 4) {
+		delete board[promotionPosition.x][promotionPosition.y];
+		switch (index) {
+		case 0:
+			board[promotionPosition.x][promotionPosition.y] = new Queen(whiteTurn ? PieceColor::White : PieceColor::Black, PieceType::Queen);
+			break;
+		case 1:
+			board[promotionPosition.x][promotionPosition.y] = new Rook(whiteTurn ? PieceColor::White : PieceColor::Black, PieceType::Rook);
+			break;
+		case 2:
+			board[promotionPosition.x][promotionPosition.y] = new Bishop(whiteTurn ? PieceColor::White : PieceColor::Black, PieceType::Bishop);
+			break;
+		case 3:
+			board[promotionPosition.x][promotionPosition.y] = new Knight(whiteTurn ? PieceColor::White : PieceColor::Black, PieceType::Knight);
+			break;
+		}
+		promoting = false;
+		whiteTurn = !whiteTurn;
+	}
+}
+
+bool Chessboard::getPromoting()
+{
+	return promoting;
+}
+
+sf::Vector2i Chessboard::getPromotionPosition()
+{
+	return promotionPosition;
 }

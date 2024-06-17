@@ -1,9 +1,9 @@
 #include "SaveLoadManager.h"
 
-SaveLoadManager::SaveLoadManager() : savePath("..\\saves\\save.txt"), loadPath("..\\saves\\save.txt")
+SaveLoadManager::SaveLoadManager() : savePath("..\\saves\\save.txt"), loadPath("..\\saves\\save.txt"), historySavePath("..\\saves\\historySave.txt"), historyLoadPath("..\\saves\\historySave.txt")
 {}
 
-void SaveLoadManager::loadFromFile(Chessboard& chessboard)
+void SaveLoadManager::loadFromFile(Chessboard& chessboard, Timer& whiteTimer, Timer& blackTimer, InputBox& input1, InputBox& input2)
 {
 	std::ifstream inputFile(loadPath);
 	std::string linia;
@@ -11,6 +11,8 @@ void SaveLoadManager::loadFromFile(Chessboard& chessboard)
 	board = chessboard.getBoard();
 
 	int i = 0;
+
+	std::vector<std::string> moves;
 
 	if (!inputFile.is_open())
 	{
@@ -22,6 +24,7 @@ void SaveLoadManager::loadFromFile(Chessboard& chessboard)
 		{
 			std::stringstream ss;
 			ss << linia;
+			
 
 			if (i < 8)
 			{
@@ -96,9 +99,9 @@ void SaveLoadManager::loadFromFile(Chessboard& chessboard)
 			}
 
 			if (i == 9)
-				chessboard.setWhiteTimerValue(std::stoi(linia));
+				whiteTimer.setTime(std::stoi(linia));
 			else if (i == 10)
-				chessboard.setBlackTimerValue(std::stoi(linia));
+				blackTimer.setTime(std::stoi(linia));
 			else if (i == 12)
 			{
 				if (std::stoi(linia) == 1)
@@ -112,14 +115,24 @@ void SaveLoadManager::loadFromFile(Chessboard& chessboard)
 				chessboard.setPlayerPoints(PieceColor::Black, std::stoi(linia));
 			else if (i == 17)
 				chessboard.setMovesWithoutTakes(std::stoi(linia));
+			else if (i == 19)
+				input1.setName(linia);
+			else if (i == 20)
+				input2.setName(linia);
+			else if (i > 21)
+			{
+				moves.push_back(linia);
+			}
 			i++;
 		}
+
+		chessboard.setMoves(moves);
 
 		inputFile.close();
 	}
 }
 
-void SaveLoadManager::saveToFile(Chessboard& chessboard)
+void SaveLoadManager::saveToFile(Chessboard& chessboard, Timer& whiteTimer, Timer& blackTimer, InputBox& input1, InputBox& input2)
 {
 	std::ofstream outputFile(savePath);
 	std::string linia;
@@ -201,9 +214,63 @@ void SaveLoadManager::saveToFile(Chessboard& chessboard)
 			outputFile << std::endl;
 		}
 
-		outputFile << "\n" << chessboard.getWhiteTimerValue() << "\n" << chessboard.getBlackTimerValue() << "\n\n" << chessboard.getTurn() << "\n\n" << chessboard.getPlayersPoints(PieceColor::White)
-			<< "\n" << chessboard.getPlayersPoints(PieceColor::Black) << "\n\n" << chessboard.getMovesWithoutTakes();
+		outputFile << "\n" << whiteTimer.getActualTime() << "\n" << blackTimer.getActualTime() << "\n\n" << chessboard.getTurn() << "\n\n" << chessboard.getPlayersPoints(PieceColor::White)
+			<< "\n" << chessboard.getPlayersPoints(PieceColor::Black) << "\n\n" << chessboard.getMovesWithoutTakes() << "\n\n" << input1.getName() << "\n" << input2.getName() << "\n\n";
+
+		std::vector<std::string> moves = chessboard.getMoves();
+
+		for (int i = 0; i < moves.size(); i++)
+		{
+			outputFile << moves[i] << std::endl;
+		}
 
 		outputFile.close();
+	}
+}
+
+void SaveLoadManager::saveGameHistory(std::vector<std::string>& gameHistory)
+{
+	std::ofstream outputFile(historySavePath);
+	std::string linia;
+
+	if (!outputFile.is_open())
+	{
+		std::cerr << "File with name '" + historySavePath.filename().string() + "' was not found.";
+	}
+	else
+	{
+		for (int i = 0; i < gameHistory.size(); i++)
+		{
+			outputFile << gameHistory[i] << std::endl;
+		}
+
+		outputFile.close();
+	}
+}
+
+void SaveLoadManager::loadGameHistory(std::vector<std::string>& gameHistory)
+{
+	std::ifstream inputFile(historyLoadPath);
+	std::string linia;
+
+	int i = 0;
+
+	std::vector<std::string> moves;
+
+	if (!inputFile.is_open())
+	{
+		std::cerr << "File with name '" + historyLoadPath.filename().string() + "' was not found.";
+	}
+	else
+	{
+		while (std::getline(inputFile, linia))
+		{
+			std::stringstream ss;
+			ss << linia;
+
+			gameHistory.push_back(linia);
+		}
+
+		inputFile.close();
 	}
 }

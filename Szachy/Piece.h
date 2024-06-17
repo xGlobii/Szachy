@@ -17,6 +17,7 @@ protected:
 	PieceType pType;
 	sf::Vector2f position;
 	sf::Texture texture;
+	sf::Sprite sprite;
 	int value;
 	bool specialMove;
 
@@ -40,6 +41,9 @@ public:
 
 	bool getSpecialMoveStatus();
 	void setSpecialMove(bool specialMove);
+
+	sf::Sprite getSprite();
+
 };
 
 #endif
