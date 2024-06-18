@@ -1,0 +1,25 @@
+rn##kbnr
+ppP#pppp
+########
+###p####
+##R#P#Q#
+########
+PPPP#PPP
+RNB#KBNR
+
+717
+478
+
+0
+
+0
+0
+
+3
+
+Pl Pl
+Pl Pl
+
+e2-e4
+d7-d5
+Qd1-g4

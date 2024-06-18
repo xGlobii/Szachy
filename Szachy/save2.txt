@@ -1,0 +1,26 @@
+rn#qkbnr
+ppPppppp
+####P###
+########
+#####q##
+########
+PP###PPP
+RN#QKBNR
+
+593
+594
+
+0
+
+0
+0
+
+13
+
+Marco Polo
+Krzysztof Kolumb
+
+e2-e4
+e4-e5
+Qc1-f4
+e5-e6

@@ -14,10 +14,10 @@ namespace fs = std::filesystem;
 
 class SaveLoadManager
 {
-	fs::path savePath;
-	fs::path loadPath;
+	fs::path loadSavePath;
 	fs::path historySavePath;
 	fs::path historyLoadPath;
+	fs::path folderPath;
 
 	std::vector<std::vector<Piece*>> board;
 
@@ -29,6 +29,11 @@ public:
 
 	void saveGameHistory(std::vector<std::string>& gameHistory);
 	void loadGameHistory(std::vector<std::string>& gameHistory);
+
+	int getNextSaveNumber();
+	std::string getLatestSaveFilePath();
+
+	void setSaveName();
 };
 
 #endif

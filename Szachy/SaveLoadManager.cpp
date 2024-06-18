@@ -1,11 +1,43 @@
+#include <filesystem>
+#include <fstream>
+#include <iostream>
+#include <sstream>
 #include "SaveLoadManager.h"
 
-SaveLoadManager::SaveLoadManager() : savePath("..\\saves\\save.txt"), loadPath("..\\saves\\save.txt"), historySavePath("..\\saves\\historySave.txt"), historyLoadPath("..\\saves\\historySave.txt")
+SaveLoadManager::SaveLoadManager() : folderPath("..\\saves\\"), historySavePath("..\\saves\\historySave.txt"), historyLoadPath("..\\saves\\historySave.txt")
 {}
+
+std::string SaveLoadManager::getLatestSaveFilePath()
+{
+	namespace fs = std::filesystem;
+	int highestNumber = -1;
+	std::string latestSaveFile;
+
+	for (const auto& entry : fs::directory_iterator(folderPath))
+	{
+		if (entry.is_regular_file())
+		{
+			std::string filename = entry.path().filename().string();
+			if (filename.find("save") == 0 && filename.find(".txt") != std::string::npos)
+			{
+				std::string numberPart = filename.substr(4, filename.find(".txt") - 4);
+				int number = std::stoi(numberPart);
+				if (number > highestNumber)
+				{
+					highestNumber = number;
+					latestSaveFile = entry.path().string();
+				}
+			}
+		}
+	}
+
+	return latestSaveFile;
+}
 
 void SaveLoadManager::loadFromFile(Chessboard& chessboard, Timer& whiteTimer, Timer& blackTimer, InputBox& input1, InputBox& input2)
 {
-	std::ifstream inputFile(loadPath);
+	loadSavePath = getLatestSaveFilePath();
+	std::ifstream inputFile(loadSavePath);
 	std::string linia;
 
 	board = chessboard.getBoard();
@@ -16,7 +48,7 @@ void SaveLoadManager::loadFromFile(Chessboard& chessboard, Timer& whiteTimer, Ti
 
 	if (!inputFile.is_open())
 	{
-		std::cerr << "File with name '" + loadPath.filename().string() + "' was not found.";
+		std::cerr << "File with name '" + loadSavePath.filename().string() + "' was not found.";
 	}
 	else
 	{
@@ -24,7 +56,6 @@ void SaveLoadManager::loadFromFile(Chessboard& chessboard, Timer& whiteTimer, Ti
 		{
 			std::stringstream ss;
 			ss << linia;
-			
 
 			if (i < 8)
 			{
@@ -92,7 +123,6 @@ void SaveLoadManager::loadFromFile(Chessboard& chessboard, Timer& whiteTimer, Ti
 						else
 							board[x][i]->setSpecialMove(false);
 						break;
-
 					}
 				}
 				chessboard.setBoard(board);
@@ -134,7 +164,7 @@ void SaveLoadManager::loadFromFile(Chessboard& chessboard, Timer& whiteTimer, Ti
 
 void SaveLoadManager::saveToFile(Chessboard& chessboard, Timer& whiteTimer, Timer& blackTimer, InputBox& input1, InputBox& input2)
 {
-	std::ofstream outputFile(savePath);
+	std::ofstream outputFile(loadSavePath);
 	std::string linia;
 
 	int i = 0;
@@ -143,7 +173,7 @@ void SaveLoadManager::saveToFile(Chessboard& chessboard, Timer& whiteTimer, Time
 
 	if (!outputFile.is_open())
 	{
-		std::cerr << "File with name '" + savePath.filename().string() + "' was not found.";
+		std::cerr << "File with name '" + loadSavePath.filename().string() + "' was not found.";
 	}
 	else
 	{
@@ -228,6 +258,31 @@ void SaveLoadManager::saveToFile(Chessboard& chessboard, Timer& whiteTimer, Time
 	}
 }
 
+int SaveLoadManager::getNextSaveNumber()
+{
+	namespace fs = std::filesystem;
+	int highestNumber = -1;
+
+	for (const auto& entry : fs::directory_iterator(folderPath))
+	{
+		if (entry.is_regular_file())
+		{
+			std::string filename = entry.path().filename().string();
+			if (filename.find("save") == 0 && filename.find(".txt") != std::string::npos)
+			{
+				std::string numberPart = filename.substr(4, filename.find(".txt") - 4);
+				int number = std::stoi(numberPart);
+				if (number > highestNumber)
+				{
+					highestNumber = number;
+				}
+			}
+		}
+	}
+
+	return highestNumber + 1;
+}
+
 void SaveLoadManager::saveGameHistory(std::vector<std::string>& gameHistory)
 {
 	std::ofstream outputFile(historySavePath);
@@ -273,4 +328,11 @@ void SaveLoadManager::loadGameHistory(std::vector<std::string>& gameHistory)
 
 		inputFile.close();
 	}
+}
+
+void SaveLoadManager::setSaveName()
+{
+	int number = getNextSaveNumber();
+
+	loadSavePath = "..\\saves\\save" + std::to_string(number) + ".txt";
 }

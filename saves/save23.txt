@@ -1,0 +1,24 @@
+rnbqkbnr
+pp#ppppp
+########
+##p#####
+####P###
+########
+PPPP#PPP
+RNBQKBNR
+
+599
+599
+
+1
+
+0
+0
+
+2
+
+In In
+Ln Ln
+
+e2-e4
+c7-c5

@@ -19,13 +19,3 @@ RN#QKBNR
 
 Marco Polo
 Krzysztof Kolumb
-
-e2-e4
-d7-d5
-Qd1-g4
-Qd8-d6
-Bf1-d3
-c7-c5
-Ng1-f3
-b7-b6
-O-O

@@ -76,14 +76,18 @@ public:
 	void load();
 	void save();
 	void drawTimer(sf::Vector2f position, sf::RenderWindow& window, const PieceColor pc);
-	void checkIfEnd();
 
 	void startTimers();
 	void stopTimers();
-	void setTimers(sf::Vector2f position, sf::RenderWindow& window, const PieceColor pc);
+	void drawInGameTimers(sf::Vector2f position, const PieceColor pc);
 	void updateTurn();
 
 	void drawMatchHistory();
+
+	void drawInGameNickname(sf::Vector2f position, std::string name);
+	void drawPointsPlace(const int points, sf::Vector2f position);
+
+	void drawName(sf::Vector2f position, std::string text);
 };
 
 #endif

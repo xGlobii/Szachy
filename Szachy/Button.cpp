@@ -5,6 +5,8 @@ Button::Button(int width, int height, sf::Vector2f position, sf::Color color, st
 	buttonBody.setSize(sf::Vector2f(width, height));
 	buttonBody.setPosition(position);
 	buttonBody.setFillColor(color);
+	buttonBody.setOutlineThickness(3);
+	buttonBody.setOutlineColor(sf::Color(122, 14, 6));
 }
 
 void Button::draw(sf::RenderWindow& window)

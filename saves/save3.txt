@@ -1,0 +1,24 @@
+rnbqkbnr
+pppp#ppp
+########
+####p###
+###P####
+########
+PPP#PPPP
+RNBQKBNR
+
+600
+600
+
+1
+
+0
+0
+
+2
+
+Imie Nazwisko
+Imie Nazwisko
+
+d2-d4
+e7-e5

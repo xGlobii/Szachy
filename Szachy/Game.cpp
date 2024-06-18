@@ -1,6 +1,6 @@
 #include "Game.h"
 
-Game::Game() : window(sf::VideoMode::getDesktopMode(), "Chess by Globii.", sf::Style::Titlebar), input1(sf::Vector2f(300, 150), sf::Vector2f(1200, 150)), input2(sf::Vector2f(300, 150), sf::Vector2f(1200, 350)),
+Game::Game() : window(sf::VideoMode::getDesktopMode(), "Chess by Globii.", sf::Style::None), input1(sf::Vector2f(300, 50), sf::Vector2f(330, 275)), input2(sf::Vector2f(300, 50), sf::Vector2f(1290, 275)),
 whiteTimer(600), blackTimer(600)
 {
 	window.setFramerateLimit(60);
@@ -13,31 +13,31 @@ whiteTimer(600), blackTimer(600)
 	blackPauseFlag = true;
 
 	{
-		startButton = Button(300, 100, sf::Vector2f(150, 150), sf::Color::Blue, std::bind(&Game::startGame, this));
+		startButton = Button(300, 100, sf::Vector2f(840, 50), sf::Color(100, 100, 100), std::bind(&Game::startGame, this));
 		startButton.setText("Start");
 
-		exitBtn = Button(300, 100, sf::Vector2f(150, 800), sf::Color::Blue, std::bind(&Game::exitGame, this));
-		exitBtn.setText("Exit");
-
-		decrementWhiteTimer = Button(100, 100, sf::Vector2f(150, 600), sf::Color::Blue, std::bind(&Game::decrementWhite, this));
-		decrementWhiteTimer.setText("-");
-
-		incrementWhiteTimer = Button(100, 100, sf::Vector2f(500, 600), sf::Color::Blue, std::bind(&Game::incrementWhite, this));
-		incrementWhiteTimer.setText("+");
-
-		decrementBlackTimer = Button(100, 100, sf::Vector2f(700, 600), sf::Color::Blue, std::bind(&Game::decrementBlack, this));
-		decrementBlackTimer.setText("-");
-
-		incrementBlackTimer = Button(100, 100, sf::Vector2f(1050, 600), sf::Color::Blue, std::bind(&Game::incrementBlack, this));
-		incrementBlackTimer.setText("+");
-
-		loadButton = Button(200, 100, sf::Vector2f(150, 400), sf::Color::Blue, std::bind(&Game::load, this));
+		loadButton = Button(300, 100, sf::Vector2f(840, 400), sf::Color(100, 100, 100), std::bind(&Game::load, this));
 		loadButton.setText("Load from file");
 
-		saveButton = Button(1500, 100, sf::Vector2f(1000, 150), sf::Color::Blue, std::bind(&Game::save, this));
+		exitBtn = Button(300, 100, sf::Vector2f(840, 850), sf::Color(100, 100, 100), std::bind(&Game::exitGame, this));
+		exitBtn.setText("Exit");
+
+		decrementWhiteTimer = Button(100, 100, sf::Vector2f(280, 600), sf::Color(100, 100, 100), std::bind(&Game::decrementWhite, this));
+		decrementWhiteTimer.setText("-");
+
+		incrementWhiteTimer = Button(100, 100, sf::Vector2f(580, 600), sf::Color(100, 100, 100), std::bind(&Game::incrementWhite, this));
+		incrementWhiteTimer.setText("+");
+
+		decrementBlackTimer = Button(100, 100, sf::Vector2f(1240, 600), sf::Color(100, 100, 100), std::bind(&Game::decrementBlack, this));
+		decrementBlackTimer.setText("-");
+
+		incrementBlackTimer = Button(100, 100, sf::Vector2f(1540, 600), sf::Color(100, 100, 100), std::bind(&Game::incrementBlack, this));
+		incrementBlackTimer.setText("+");
+
+		saveButton = Button(250, 100, sf::Vector2f(1100, 900), sf::Color(100, 100, 100), std::bind(&Game::save, this));
 		saveButton.setText("Save game");
 
-		gameExitButton = Button(1500, 100, sf::Vector2f(1000, 275), sf::Color::Blue, std::bind(&Game::exitGame, this));
+		gameExitButton = Button(250, 100, sf::Vector2f(1450, 900), sf::Color(100, 100, 100), std::bind(&Game::exitGame, this));
 		gameExitButton.setText("Exit game");
 	}
 
@@ -101,19 +101,22 @@ void Game::render()
 		decrementBlackTimer.draw(window);
 		incrementBlackTimer.draw(window);
 		loadButton.draw(window);
-		drawTimer(sf::Vector2f(200, 600), window, PieceColor::White);
-		drawTimer(sf::Vector2f(800, 600), window, PieceColor::Black);
-
+		drawTimer(sf::Vector2f(430, 600), window, PieceColor::White);
+		drawTimer(sf::Vector2f(1390, 600), window, PieceColor::Black);
+		drawName(sf::Vector2f(370, 200), "White Player");
+		drawName(sf::Vector2f(1330, 200), "Black Player");
 		input1.draw(window);
 		input2.draw(window);
 	}
 	else if (isGameStarted)
 	{
 		board.draw(window);
-		board.drawPointsPlace(window, board.getPlayersPoints(PieceColor::White), sf::Vector2f(100, 1000));
-		board.drawPointsPlace(window, board.getPlayersPoints(PieceColor::Black), sf::Vector2f(100, 100));
-		setTimers(sf::Vector2f(250, 1000), window, PieceColor::White);
-		setTimers(sf::Vector2f(250, 100), window, PieceColor::Black);
+		drawPointsPlace(board.getPlayersPoints(PieceColor::White), sf::Vector2f(725, 1000));
+		drawPointsPlace(board.getPlayersPoints(PieceColor::Black), sf::Vector2f(725, 50));
+		drawInGameTimers(sf::Vector2f(850, 1000), PieceColor::White);
+		drawInGameTimers(sf::Vector2f(850, 50), PieceColor::Black);
+		drawInGameNickname(sf::Vector2f(150, 1000), input1.getName());
+		drawInGameNickname(sf::Vector2f(150, 50), input2.getName());
 		saveButton.draw(window);
 		gameExitButton.draw(window);
 		board.drawLastMoves(window);
@@ -141,6 +144,7 @@ void Game::startGame()
 		{
 			isGameStarted = true;
 			board.initializeBoard();
+			slManager.setSaveName();
 		}
 	}
 }
@@ -150,8 +154,7 @@ void Game::run()
 	while (window.isOpen())
 	{
 		handleEvents();
-		if (!stopFlag)
-			checkIfEnd();
+
 		render();
 		if (!board.getTimerStatus() && !lock)
 		{
@@ -223,19 +226,47 @@ void Game::drawTimer(sf::Vector2f position, sf::RenderWindow& window, const Piec
 	sf::Text timeText;
 	sf::Font font;
 
-	timePlace.setSize(sf::Vector2f(100, 50));
+	timePlace.setSize(sf::Vector2f(100, 100));
 	timePlace.setFillColor(sf::Color::White);
 	timePlace.setPosition(sf::Vector2f(position));
 
 	font.loadFromFile("..\\rsc\\Roboto-Regular.ttf");
 
 	timeText.setFont(font);
+
+	timeText.setCharacterSize(40);
+	timeText.setFillColor(sf::Color::White);
+
+	timeText.setString("White Timer");
+	timeText.setPosition(380, 525);
+	window.draw(timeText);
+
+	timeText.setString("Black Timer");
+	timeText.setPosition(1340, 525);
+	window.draw(timeText);
+
 	timeText.setCharacterSize(24);
 	timeText.setFillColor(sf::Color::Black);
+
+	std::string minutes, seconds;
+
 	if (pc == PieceColor::White)
-		timeText.setString(std::to_string(whiteTimer.getActualTime() / 60) + ":" + std::to_string(whiteTimer.getActualTime() % 60));
+	{
+		minutes = std::to_string(whiteTimer.getActualTime() / 60);
+		if (whiteTimer.getActualTime() % 60 < 10)
+			seconds = "0" + std::to_string(whiteTimer.getActualTime() % 60);
+		else
+			seconds = std::to_string(whiteTimer.getActualTime() % 60);
+		timeText.setString(minutes + ":" + seconds);
+	}
 	else
-		timeText.setString(std::to_string(blackTimer.getActualTime() / 60) + ":" + std::to_string(blackTimer.getActualTime() % 60));
+	{
+		if (blackTimer.getActualTime() % 60 < 10)
+			seconds = "0" + std::to_string(blackTimer.getActualTime() % 60);
+		else
+			seconds = std::to_string(blackTimer.getActualTime() % 60);
+		timeText.setString(std::to_string(blackTimer.getActualTime() / 60) + ":" + seconds);
+	}
 
 	sf::FloatRect textRect = timeText.getLocalBounds();
 	timeText.setOrigin(textRect.left + textRect.width / 2.0f, textRect.top + textRect.height / 2.0f);
@@ -243,22 +274,6 @@ void Game::drawTimer(sf::Vector2f position, sf::RenderWindow& window, const Piec
 
 	window.draw(timePlace);
 	window.draw(timeText);
-}
-
-void Game::checkIfEnd()
-{
-	if (isGameStarted)
-	{
-		if (board.getMovesWithoutTakes() >= 100)
-		{
-			if (!board.getTimerStatus())
-			{
-				stopFlag = true;
-				stopTimers();
-				std::cout << "Tie" << std::endl;
-			}
-		}
-	}
 }
 
 void Game::startTimers()
@@ -286,7 +301,7 @@ void Game::stopTimers()
 	stopFlag = true;
 }
 
-void Game::setTimers(sf::Vector2f position, sf::RenderWindow& window, const PieceColor pc)
+void Game::drawInGameTimers(sf::Vector2f position, const PieceColor pc)
 {
 	sf::RectangleShape timePlace;
 	sf::Text timeText;
@@ -295,16 +310,34 @@ void Game::setTimers(sf::Vector2f position, sf::RenderWindow& window, const Piec
 	timePlace.setSize(sf::Vector2f(100, 50));
 	timePlace.setFillColor(sf::Color::White);
 	timePlace.setPosition(sf::Vector2f(position));
+	timePlace.setOutlineColor(sf::Color::Black);
+	timePlace.setOutlineThickness(4);
 
 	font.loadFromFile("..\\rsc\\Roboto-Regular.ttf");
 
 	timeText.setFont(font);
 	timeText.setCharacterSize(24);
 	timeText.setFillColor(sf::Color::Black);
+
+	std::string minutes, seconds;
+
 	if (pc == PieceColor::White)
-		timeText.setString(std::to_string(whiteTimer.getActualTime() / 60) + ":" + std::to_string(whiteTimer.getActualTime() % 60));
+	{
+		minutes = std::to_string(whiteTimer.getActualTime() / 60);
+		if (whiteTimer.getActualTime() % 60 < 10)
+			seconds = "0" + std::to_string(whiteTimer.getActualTime() % 60);
+		else
+			seconds = std::to_string(whiteTimer.getActualTime() % 60);
+		timeText.setString(minutes + ":" + seconds);
+	}
 	else
-		timeText.setString(std::to_string(blackTimer.getActualTime() / 60) + ":" + std::to_string(blackTimer.getActualTime() % 60));
+	{
+		if (blackTimer.getActualTime() % 60 < 10)
+			seconds = "0" + std::to_string(blackTimer.getActualTime() % 60);
+		else
+			seconds = std::to_string(blackTimer.getActualTime() % 60);
+		timeText.setString(std::to_string(blackTimer.getActualTime() / 60) + ":" + seconds);
+	}
 
 	sf::FloatRect textRect = timeText.getLocalBounds();
 	timeText.setOrigin(textRect.left + textRect.width / 2.0f, textRect.top + textRect.height / 2.0f);
@@ -312,6 +345,34 @@ void Game::setTimers(sf::Vector2f position, sf::RenderWindow& window, const Piec
 
 	window.draw(timePlace);
 	window.draw(timeText);
+}
+
+void Game::drawInGameNickname(sf::Vector2f position, std::string name)
+{
+	sf::RectangleShape box;
+	sf::Text text;
+	sf::Font font;
+
+	box.setSize(sf::Vector2f(300, 50));
+	box.setFillColor(sf::Color::White);
+	box.setPosition(sf::Vector2f(position));
+	box.setOutlineColor(sf::Color::Black);
+	box.setOutlineThickness(4);
+
+	font.loadFromFile("..\\rsc\\Roboto-Regular.ttf");
+
+	text.setFont(font);
+	text.setCharacterSize(24);
+	text.setFillColor(sf::Color::Black);
+	
+	text.setString(name);
+
+	sf::FloatRect textRect = text.getLocalBounds();
+	text.setOrigin(textRect.left + textRect.width / 2.0f, textRect.top + textRect.height / 2.0f);
+	text.setPosition(box.getPosition().x + box.getSize().x / 2.0f, box.getPosition().y + box.getSize().y / 2.0f);
+
+	window.draw(box);
+	window.draw(text);
 }
 
 void Game::updateTurn()
@@ -344,12 +405,12 @@ void Game::drawMatchHistory()
 	std::strftime(date_buffer, sizeof(date_buffer), "%d-%m-%Y", &local_time);
 
 	box.setPosition(200, 200);
-	box.setSize(sf::Vector2f(1200, 700));
+	box.setSize(sf::Vector2f(1520, 680));
 	box.setFillColor(sf::Color(40, 40, 40, 200));
 
 	sf::FloatRect textBounds = text.getLocalBounds();
-	float textX = box.getPosition().x + (box.getSize().x - textBounds.width) / 2.f;
-	float textY = box.getPosition().y + 10.f;
+	float textX = 760;
+	float textY = box.getPosition().y + 20;
 
 	font.loadFromFile("..\\rsc\\Roboto-Regular.ttf");
 	text.setCharacterSize(24);
@@ -366,7 +427,8 @@ void Game::drawMatchHistory()
 	else
 		end = board.getEndGameType();
 
-	text.setString(end);
+	if (board.getEndGameType()[0] != 'D')
+		text.setString(end + "\n" + (board.getTurn() == 1 ? "White wins" : "Black wins"));
 
 
 	players.setFont(font);
@@ -375,17 +437,17 @@ void Game::drawMatchHistory()
 	if (board.getEndGameType()[0] == 'D')
 	{
 		result = " 0.5 - 0.5 ";
-		players.setString(input1.getName() + result + input2.getName() + " - " + date_buffer);
+		players.setString("\n" + input1.getName() + result + input2.getName() + " - " + date_buffer);
 	}
 	else if (board.getEndGameType()[0] == 'C')
 	{
 		result = (board.getTurn() ? " 1 - 0 " : " 0 - 1 ");
-		players.setString(input1.getName() + result + input2.getName() + " - " + date_buffer);
+		players.setString("\n" + input1.getName() + result + input2.getName() + " - " + date_buffer);
 	}
 	else if (end[0] == 'T')
 	{
 		result = (whiteTimer.getActualTime() > 0 ? " 1-0 " : " 0-1 ");
-		players.setString(input1.getName() + result + input2.getName() + " - " + date_buffer);
+		players.setString("\n" + input1.getName() + result + input2.getName() + " - " + date_buffer);
 	}
 
 
@@ -400,12 +462,57 @@ void Game::drawMatchHistory()
 
 	window.draw(box);
 	window.draw(text);
-	for (int i = 0; i < gameHistory.size(); i++)
+	int startIdx = (gameHistory.size() > 24) ? gameHistory.size() - 22 : 0;
+	for (int i = startIdx, pos = 0; i < gameHistory.size(); i++, pos++)
 	{
 
 		players.setString(gameHistory[i]);
-		players.setPosition(text.getPosition().x, text.getPosition().y + 45 + i * 15);
+		players.setPosition(text.getPosition().x, text.getPosition().y + 60 + pos * 25);
 
 		window.draw(players);
 	}
+}
+
+void Game::drawPointsPlace(const int points, sf::Vector2f position)
+{
+	sf::RectangleShape pointsPlace;
+	sf::Text pointsText;
+	sf::Font font;
+
+	pointsPlace.setSize(sf::Vector2f(100, 50));
+	pointsPlace.setFillColor(sf::Color::White);
+	pointsPlace.setPosition(sf::Vector2f(position));
+
+	font.loadFromFile("..\\rsc\\Roboto-Regular.ttf");
+
+	pointsText.setFont(font);
+	pointsText.setCharacterSize(24);
+	pointsText.setFillColor(sf::Color::Black);
+	pointsText.setString(std::to_string(points));
+
+
+	sf::FloatRect textRect = pointsText.getLocalBounds();
+	pointsText.setOrigin(textRect.left + textRect.width / 2.0f, textRect.top + textRect.height / 2.0f);
+	pointsText.setPosition(pointsPlace.getPosition().x + pointsPlace.getSize().x / 2.0f, pointsPlace.getPosition().y + pointsPlace.getSize().y / 2.0f);
+
+	window.draw(pointsPlace);
+	window.draw(pointsText);
+}
+
+void Game::drawName(sf::Vector2f position, std::string text)
+{
+	sf::Text nameText;
+	sf::Font font;
+
+	font.loadFromFile("..\\rsc\\Roboto-Regular.ttf");
+
+	nameText.setFont(font);
+
+	nameText.setCharacterSize(40);
+	nameText.setFillColor(sf::Color::White);
+
+	nameText.setString(text);
+	nameText.setPosition(position);
+
+	window.draw(nameText);
 }

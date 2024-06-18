@@ -1,0 +1,25 @@
+rPq#kbnr
+pp#ppppp
+###Q####
+########
+##P#R###
+########
+PPp#PPPP
+RN#QKBNR
+
+595
+590
+
+0
+
+3
+0
+
+0
+
+Marco Polo
+Krzysztof Kolumb
+
+Qd4-d6
+Qd8-c8
+c7xb8

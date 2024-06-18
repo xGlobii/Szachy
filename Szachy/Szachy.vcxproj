@@ -140,6 +140,7 @@
     <ClCompile Include="Bishop.cpp" />
     <ClCompile Include="Button.cpp" />
     <ClCompile Include="Chessboard.cpp" />
+    <ClCompile Include="ChessboardChecking.cpp" />
     <ClCompile Include="King.cpp" />
     <ClCompile Include="Knight.cpp" />
     <ClCompile Include="Menu.cpp" />
@@ -156,6 +157,7 @@
     <ClInclude Include="Bishop.h" />
     <ClInclude Include="Button.h" />
     <ClInclude Include="Chessboard.h" />
+    <ClInclude Include="ChessboardChecking.h" />
     <ClInclude Include="King.h" />
     <ClInclude Include="Knight.h" />
     <ClInclude Include="Menu.h" />

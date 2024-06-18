@@ -1,0 +1,33 @@
+rn##kbnr
+ppp#p#pp
+####b###
+###q#p##
+######Q#
+###B#N##
+PPPP#PPP
+RNB##RK#
+
+677
+540
+
+0
+
+1
+1
+
+6
+
+Jan Kowalski
+Imie Nazwisko
+
+e2-e4
+d7-d5
+e4xd5
+Qd8xd5
+Qd1-g4
+Bc8-e6
+Bf1-d3
+f7-f6
+Ng1-f3
+f6-f5
+O-O
